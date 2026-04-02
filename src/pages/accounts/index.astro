@@ -1,0 +1,38 @@
+---
+import AdminLayout from "@/layouts/admin.astro"
+---
+
+<AdminLayout title="Accounts">
+  <div class="flex flex-1 flex-col gap-6 p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-semibold">Accounts</h1>
+        <p class="mt-1 text-sm text-muted-foreground">
+          Manage Delta Exchange API keys for each account.
+        </p>
+      </div>
+      <button
+        class="inline-flex h-9 items-center gap-2 rounded-4xl bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/80 transition-colors"
+      >
+        Add Account
+      </button>
+    </div>
+
+    <!-- Placeholder table -->
+    <div class="rounded-xl border border-border bg-card">
+      <div class="border-b border-border px-4 py-3">
+        <div class="grid grid-cols-4 text-xs font-medium text-muted-foreground">
+          <span>Name</span>
+          <span>API Key</span>
+          <span>Added</span>
+          <span class="text-right">Actions</span>
+        </div>
+      </div>
+      <div class="flex items-center justify-center py-16">
+        <p class="text-sm text-muted-foreground">
+          Phase 2 — Account management coming soon
+        </p>
+      </div>
+    </div>
+  </div>
+</AdminLayout>

@@ -1,0 +1,32 @@
+---
+import AdminLayout from "@/layouts/admin.astro"
+---
+
+<AdminLayout title="Wallet">
+  <div class="flex flex-1 flex-col gap-6 p-6">
+    <div>
+      <h1 class="text-xl font-semibold">Wallet</h1>
+      <p class="mt-1 text-sm text-muted-foreground">
+        Asset balances across all accounts.
+      </p>
+    </div>
+
+    <!-- Placeholder table -->
+    <div class="rounded-xl border border-border bg-card">
+      <div class="border-b border-border px-4 py-3">
+        <div class="grid grid-cols-5 text-xs font-medium text-muted-foreground">
+          <span>Account</span>
+          <span>Asset</span>
+          <span>Available</span>
+          <span>Blocked</span>
+          <span class="text-right">Total</span>
+        </div>
+      </div>
+      <div class="flex items-center justify-center py-16">
+        <p class="text-sm text-muted-foreground">
+          Phase 7 — Wallet balances coming soon
+        </p>
+      </div>
+    </div>
+  </div>
+</AdminLayout>

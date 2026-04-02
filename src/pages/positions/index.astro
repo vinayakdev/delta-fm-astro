@@ -1,0 +1,33 @@
+---
+import AdminLayout from "@/layouts/admin.astro"
+---
+
+<AdminLayout title="Positions">
+  <div class="flex flex-1 flex-col gap-6 p-6">
+    <div>
+      <h1 class="text-xl font-semibold">Positions</h1>
+      <p class="mt-1 text-sm text-muted-foreground">
+        Open positions across all accounts.
+      </p>
+    </div>
+
+    <!-- Placeholder table -->
+    <div class="rounded-xl border border-border bg-card">
+      <div class="border-b border-border px-4 py-3">
+        <div class="grid grid-cols-6 text-xs font-medium text-muted-foreground">
+          <span>Account</span>
+          <span>Product</span>
+          <span>Size</span>
+          <span>Entry Price</span>
+          <span>Mark Price</span>
+          <span class="text-right">Unrealized PnL</span>
+        </div>
+      </div>
+      <div class="flex items-center justify-center py-16">
+        <p class="text-sm text-muted-foreground">
+          Phase 5 — Positions view coming soon
+        </p>
+      </div>
+    </div>
+  </div>
+</AdminLayout>

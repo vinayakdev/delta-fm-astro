@@ -1,17 +1,40 @@
 ---
-import Layout from "@/layouts/main.astro"
-import { Button } from "@/components/ui/button"
+import AdminLayout from "@/layouts/admin.astro"
 ---
 
-<Layout>
-  <div class="flex min-h-svh p-6">
-    <div class="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-      <div>
-        <h1 class="font-medium">Project ready!</h1>
-        <p>You may now add components and start building.</p>
-        <p>We've already added the button component for you.</p>
-        <Button client:load className="mt-2">Button</Button>
-      </div>
+<AdminLayout title="Dashboard">
+  <div class="flex flex-1 flex-col gap-6 p-6">
+    <div>
+      <h1 class="text-xl font-semibold">Dashboard</h1>
+      <p class="mt-1 text-sm text-muted-foreground">
+        Overview of all accounts, balances, and open positions.
+      </p>
+    </div>
+
+    <!-- Placeholder stats grid -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {
+        [
+          { label: "Total Accounts", value: "—" },
+          { label: "Total Balance", value: "—" },
+          { label: "Open Positions", value: "—" },
+          { label: "Unrealized PnL", value: "—" },
+        ].map(({ label, value }) => (
+          <div class="rounded-xl border border-border bg-card p-4">
+            <p class="text-xs font-medium text-muted-foreground">{label}</p>
+            <p class="mt-2 text-2xl font-semibold tabular-nums">{value}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Coming soon -->
+    <div
+      class="flex flex-1 items-center justify-center rounded-xl border border-dashed border-border"
+    >
+      <p class="text-sm text-muted-foreground">
+        Phase 4 — Dashboard charts coming soon
+      </p>
     </div>
   </div>
-</Layout>
+</AdminLayout>
