@@ -27,14 +27,20 @@ interface WalletBalance {
   asset_id: number
   asset_symbol: string
   available_balance: string
-  blocked_margin: string
+  available_balance_inr: string
   balance: string
+  balance_inr: string
+  blocked_margin: string
+}
+
+interface WalletMeta {
+  net_equity: string
 }
 
 type BalanceState =
   | { status: "idle" }
   | { status: "loading" }
-  | { status: "ok"; balances: WalletBalance[] }
+  | { status: "ok"; balances: WalletBalance[]; meta: WalletMeta }
   | { status: "error"; message: string }
 
 type Currency = "USD" | "INR"
@@ -46,41 +52,24 @@ function maskKey(key: string): string {
   return key.slice(0, 4) + "••••••••" + key.slice(-4)
 }
 
-function formatAmount(value: string, currency: Currency, rate: number): string {
+function fmt(value: string, currency: Currency): string {
   const n = parseFloat(value)
-  if (isNaN(n)) return "—"
+  if (isNaN(n) || n === 0) return "—"
   if (currency === "INR") {
-    return "₹" + (n * rate).toLocaleString("en-IN", { maximumFractionDigits: 2 })
+    return "₹" + n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   }
-  return "$" + n.toLocaleString("en-US", { maximumFractionDigits: 2 })
-}
-
-function totalBalance(balances: WalletBalance[]): number {
-  // Sum all balances — most are USDT-denominated on Delta India
-  return balances.reduce((sum, b) => sum + parseFloat(b.balance || "0"), 0)
+  return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 // ── Sub-components ─────────────────────────────────────────────────────────
 
-function BalanceCell({
-  state,
-  currency,
-  rate,
-}: {
-  state: BalanceState
-  currency: Currency
-  rate: number
-}) {
+function BalanceCell({ state, currency }: { state: BalanceState; currency: Currency }) {
   if (state.status === "idle") return <span className="text-muted-foreground/40">—</span>
 
   if (state.status === "loading") {
     return (
       <span className="flex items-center gap-1.5 text-muted-foreground">
-        <HugeiconsIcon
-          icon={Loading02Icon}
-          className="size-3.5 animate-spin"
-          strokeWidth={2}
-        />
+        <HugeiconsIcon icon={Loading02Icon} className="size-3.5 animate-spin" strokeWidth={2} />
         <span className="text-xs">Loading…</span>
       </span>
     )
@@ -88,23 +77,24 @@ function BalanceCell({
 
   if (state.status === "error") {
     return (
-      <span
-        className="flex items-center gap-1.5 text-destructive"
-        title={state.message}
-      >
+      <span className="flex items-center gap-1.5 text-destructive" title={state.message}>
         <HugeiconsIcon icon={AlertCircleIcon} className="size-3.5 shrink-0" strokeWidth={2} />
         <span className="max-w-[180px] truncate text-xs">{state.message}</span>
       </span>
     )
   }
 
-  const total = totalBalance(state.balances)
+  // Use net_equity from meta — the authoritative total across all assets
+  const displayValue = currency === "INR"
+    ? fmt(
+        state.balances.reduce((s, b) => s + parseFloat(b.balance_inr || "0"), 0).toString(),
+        "INR"
+      )
+    : fmt(state.meta.net_equity, "USD")
 
   return (
     <span className="flex items-center gap-2">
-      <span className="font-medium tabular-nums">
-        {formatAmount(total.toString(), currency, rate)}
-      </span>
+      <span className="font-medium tabular-nums">{displayValue}</span>
       {state.balances.length > 1 && (
         <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
           {state.balances.length} assets
@@ -274,7 +264,6 @@ export function AccountsManager() {
   const [currency, setCurrency] = React.useState<Currency>(
     () => (localStorage.getItem("fm-currency") === "INR" ? "INR" : "USD")
   )
-  const [exchangeRate, setExchangeRate] = React.useState(84)
   const [loading, setLoading] = React.useState(true)
   const [modalOpen, setModalOpen] = React.useState(false)
   const [editingAccount, setEditingAccount] = React.useState<Account | null>(null)
@@ -288,17 +277,6 @@ export function AccountsManager() {
     }
     window.addEventListener("fm-currency-change", onCurrencyChange)
     return () => window.removeEventListener("fm-currency-change", onCurrencyChange)
-  }, [])
-
-  // Fetch exchange rate once
-  React.useEffect(() => {
-    fetch("https://open.er-api.com/v6/latest/USD")
-      .then((r) => r.json())
-      .then((data) => {
-        const rate = data?.rates?.INR
-        if (typeof rate === "number") setExchangeRate(rate)
-      })
-      .catch(() => {/* use fallback rate */})
   }, [])
 
   // Load accounts
@@ -334,7 +312,7 @@ export function AccountsManager() {
       } else {
         setBalances((prev) => ({
           ...prev,
-          [id]: { status: "ok", balances: data.balances },
+          [id]: { status: "ok", balances: data.balances, meta: data.meta },
         }))
       }
     } catch {
@@ -478,7 +456,7 @@ export function AccountsManager() {
                     </span>
 
                     {/* Balance */}
-                    <BalanceCell state={bs} currency={currency} rate={exchangeRate} />
+                    <BalanceCell state={bs} currency={currency} />
 
                     {/* Added */}
                     <span className="text-xs text-muted-foreground">

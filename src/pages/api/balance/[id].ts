@@ -12,16 +12,15 @@ export const GET: APIRoute = async ({ params }) => {
   const result = await getWalletBalances(account.apiKey, account.apiSecret)
 
   if (!result.success) {
-    return Response.json(
-      { error: formatDeltaError(result.error) },
-      { status: 400 }
-    )
+    return Response.json({ error: formatDeltaError(result.error) }, { status: 400 })
   }
 
-  // Filter to non-zero balances only
   const balances = (result.result ?? []).filter(
     (b) => parseFloat(b.balance) > 0 || parseFloat(b.available_balance) > 0
   )
 
-  return Response.json({ balances })
+  return Response.json({
+    balances,
+    meta: result.meta,
+  })
 }

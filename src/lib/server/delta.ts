@@ -23,23 +23,31 @@ export interface WalletBalance {
   asset_id: number
   asset_symbol: string
   available_balance: string
-  blocked_margin: string
+  available_balance_inr: string
   balance: string
+  balance_inr: string
+  blocked_margin: string
   position_margin: string
   order_margin: string
-  unrealized_pnl: string
 }
 
-export interface DeltaResponse<T> {
+export interface WalletMeta {
+  net_equity: string
+  robo_trading_equity: string
+  tracker_equity: string
+}
+
+export interface WalletResponse {
   success: boolean
-  result?: T
+  result?: WalletBalance[]
+  meta?: WalletMeta
   error?: string | DeltaError
 }
 
 export async function getWalletBalances(
   apiKey: string,
   apiSecret: string
-): Promise<DeltaResponse<WalletBalance[]>> {
+): Promise<WalletResponse> {
   const timestamp = Math.floor(Date.now() / 1000).toString()
   const path = "/v2/wallet/balances"
   const signature = sign(apiSecret, "GET", path, timestamp)
@@ -54,8 +62,7 @@ export async function getWalletBalances(
       },
     })
 
-    const json = (await res.json()) as DeltaResponse<WalletBalance[]>
-    return json
+    return (await res.json()) as WalletResponse
   } catch (err) {
     return {
       success: false,
