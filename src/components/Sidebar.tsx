@@ -28,36 +28,39 @@ const navItems: NavItem[] = [
 
 type Currency = "USD" | "INR"
 
-export function Sidebar() {
-  const [isDark, setIsDark] = React.useState<boolean>(
-    () => localStorage.getItem("fm-theme") !== "light"
-  )
-  const [currency, setCurrency] = React.useState<Currency>(
-    () => (localStorage.getItem("fm-currency") === "INR" ? "INR" : "USD")
-  )
-  const [currentPath, setCurrentPath] = React.useState(() => window.location.pathname)
+function setCookie(name: string, value: string) {
+  document.cookie = `${name}=${value}; path=/; max-age=${60 * 60 * 24 * 365}`
+}
 
-  // Update active route after each View Transition navigation
+interface SidebarProps {
+  initialDark: boolean
+  initialCurrency: Currency
+}
+
+export function Sidebar({ initialDark, initialCurrency }: SidebarProps) {
+  const [isDark, setIsDark] = React.useState(initialDark)
+  const [currency, setCurrency] = React.useState<Currency>(initialCurrency)
+  const [currentPath, setCurrentPath] = React.useState(
+    () => (typeof window !== "undefined" ? window.location.pathname : "/")
+  )
+
   React.useEffect(() => {
     const onPageLoad = () => setCurrentPath(window.location.pathname)
     document.addEventListener("astro:page-load", onPageLoad)
     return () => document.removeEventListener("astro:page-load", onPageLoad)
   }, [])
 
-  function applyTheme(dark: boolean) {
-    document.documentElement.classList.toggle("dark", dark)
-  }
-
   function toggleTheme() {
     const next = !isDark
     setIsDark(next)
-    localStorage.setItem("fm-theme", next ? "dark" : "light")
-    applyTheme(next)
+    const value = next ? "dark" : "light"
+    setCookie("fm-theme", value)
+    document.documentElement.classList.toggle("dark", next)
   }
 
   function switchCurrency(c: Currency) {
     setCurrency(c)
-    localStorage.setItem("fm-currency", c)
+    setCookie("fm-currency", c)
     window.dispatchEvent(new CustomEvent<Currency>("fm-currency-change", { detail: c }))
   }
 
@@ -117,7 +120,6 @@ export function Sidebar() {
 
       {/* Controls */}
       <div className="flex flex-col gap-3 border-t border-sidebar-border p-3">
-        {/* Currency Toggle */}
         <div className="flex flex-col gap-1.5">
           <p className="px-0.5 text-[10px] font-medium uppercase tracking-widest text-muted-foreground/60">
             Currency
@@ -140,7 +142,6 @@ export function Sidebar() {
           </div>
         </div>
 
-        {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
           className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground transition-colors"

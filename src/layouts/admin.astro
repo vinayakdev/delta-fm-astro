@@ -8,30 +8,23 @@ interface Props {
 }
 
 const { title = "Delta FM" } = Astro.props
+
+// Read persisted preferences from cookies so the server renders
+// the sidebar with correct initial values — no hydration mismatch.
+const isDark = Astro.cookies.get("fm-theme")?.value !== "light"
+const currency = Astro.cookies.get("fm-currency")?.value === "INR" ? "INR" : "USD"
 ---
 
-<html lang="en">
+<html lang="en" class={isDark ? "dark" : ""}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title} — Delta FM</title>
-    <!-- Apply theme before first paint and before every View Transition swap -->
-    <script is:inline>
-      function applyTheme() {
-        const dark = localStorage.getItem("fm-theme") !== "light";
-        document.documentElement.classList.toggle("dark", dark);
-      }
-      applyTheme();
-      document.addEventListener("astro:before-swap", (e) => {
-        const dark = localStorage.getItem("fm-theme") !== "light";
-        e.newDocument.documentElement.classList.toggle("dark", dark);
-      });
-    </script>
     <ViewTransitions />
   </head>
   <body class="flex h-svh overflow-hidden bg-background text-foreground">
-    <Sidebar client:only="react" transition:persist />
+    <Sidebar initialDark={isDark} initialCurrency={currency} client:load transition:persist />
     <main class="flex flex-1 flex-col overflow-y-auto">
       <slot />
     </main>
