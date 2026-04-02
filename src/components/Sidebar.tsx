@@ -6,6 +6,8 @@ import {
   ListViewIcon,
   Wallet01Icon,
   Exchange01Icon,
+  Moon01Icon,
+  Sun01Icon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { cn } from "@/lib/utils"
@@ -24,11 +26,47 @@ const navItems: NavItem[] = [
   { label: "Wallet", href: "/wallet", icon: Wallet01Icon },
 ]
 
+type Currency = "USD" | "INR"
+
 interface SidebarProps {
   currentPath: string
 }
 
 export function Sidebar({ currentPath }: SidebarProps) {
+  const [isDark, setIsDark] = React.useState(true)
+  const [currency, setCurrency] = React.useState<Currency>("USD")
+
+  // Sync initial state from localStorage
+  React.useEffect(() => {
+    const storedTheme = localStorage.getItem("fm-theme")
+    const storedCurrency = localStorage.getItem("fm-currency") as Currency | null
+
+    const dark = storedTheme !== null ? storedTheme === "dark" : true
+    setIsDark(dark)
+    applyTheme(dark)
+
+    if (storedCurrency === "USD" || storedCurrency === "INR") {
+      setCurrency(storedCurrency)
+    }
+  }, [])
+
+  function applyTheme(dark: boolean) {
+    document.documentElement.classList.toggle("dark", dark)
+  }
+
+  function toggleTheme() {
+    const next = !isDark
+    setIsDark(next)
+    localStorage.setItem("fm-theme", next ? "dark" : "light")
+    applyTheme(next)
+  }
+
+  function switchCurrency(c: Currency) {
+    setCurrency(c)
+    localStorage.setItem("fm-currency", c)
+    window.dispatchEvent(new CustomEvent<Currency>("fm-currency-change", { detail: c }))
+  }
+
   return (
     <aside className="flex h-svh w-56 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
       {/* Logo */}
@@ -83,11 +121,43 @@ export function Sidebar({ currentPath }: SidebarProps) {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-sidebar-border p-3">
-        <p className="text-center text-[10px] text-muted-foreground/40">
-          Delta Exchange Fund Manager
-        </p>
+      {/* Controls */}
+      <div className="flex flex-col gap-3 border-t border-sidebar-border p-3">
+        {/* Currency Toggle */}
+        <div className="flex flex-col gap-1.5">
+          <p className="px-0.5 text-[10px] font-medium uppercase tracking-widest text-muted-foreground/60">
+            Currency
+          </p>
+          <div className="flex gap-1 rounded-lg bg-muted p-0.5">
+            {(["USD", "INR"] as Currency[]).map((c) => (
+              <button
+                key={c}
+                onClick={() => switchCurrency(c)}
+                className={cn(
+                  "flex-1 rounded-md py-1 text-xs font-semibold transition-all",
+                  currency === c
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {c === "USD" ? "$ USD" : "₹ INR"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground transition-colors"
+        >
+          <HugeiconsIcon
+            icon={isDark ? Sun01Icon : Moon01Icon}
+            className="size-4"
+            strokeWidth={1.5}
+          />
+          {isDark ? "Light mode" : "Dark mode"}
+        </button>
       </div>
     </aside>
   )
