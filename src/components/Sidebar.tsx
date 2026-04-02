@@ -34,16 +34,12 @@ interface SidebarProps {
 
 export function Sidebar({ currentPath }: SidebarProps) {
   // Read directly from localStorage for initial state — avoids a useState(default) → useEffect update flash
-  const [isDark, setIsDark] = React.useState<boolean>(() => {
-    if (typeof window === "undefined") return true
-    const stored = localStorage.getItem("fm-theme")
-    return stored !== "light"
-  })
-  const [currency, setCurrency] = React.useState<Currency>(() => {
-    if (typeof window === "undefined") return "USD"
-    const stored = localStorage.getItem("fm-currency")
-    return stored === "INR" ? "INR" : "USD"
-  })
+  const [isDark, setIsDark] = React.useState<boolean>(
+    () => localStorage.getItem("fm-theme") !== "light"
+  )
+  const [currency, setCurrency] = React.useState<Currency>(
+    () => (localStorage.getItem("fm-currency") === "INR" ? "INR" : "USD")
+  )
 
 
   function applyTheme(dark: boolean) {

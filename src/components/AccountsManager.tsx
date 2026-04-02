@@ -271,11 +271,9 @@ function DeleteConfirm({ name, onConfirm, onClose }: { name: string; onConfirm: 
 export function AccountsManager() {
   const [accounts, setAccounts] = React.useState<Account[]>([])
   const [balances, setBalances] = React.useState<Record<string, BalanceState>>({})
-  const [currency, setCurrency] = React.useState<Currency>(() => {
-    if (typeof window === "undefined") return "USD"
-    const stored = localStorage.getItem("fm-currency")
-    return stored === "INR" ? "INR" : "USD"
-  })
+  const [currency, setCurrency] = React.useState<Currency>(
+    () => (localStorage.getItem("fm-currency") === "INR" ? "INR" : "USD")
+  )
   const [exchangeRate, setExchangeRate] = React.useState(84)
   const [loading, setLoading] = React.useState(true)
   const [modalOpen, setModalOpen] = React.useState(false)

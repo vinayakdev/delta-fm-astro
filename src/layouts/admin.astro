@@ -26,7 +26,7 @@ const currentPath = Astro.url.pathname
     </script>
   </head>
   <body class="flex h-svh overflow-hidden bg-background text-foreground">
-    <Sidebar currentPath={currentPath} client:load />
+    <Sidebar currentPath={currentPath} client:only="react" />
     <main class="flex flex-1 flex-col overflow-y-auto">
       <slot />
     </main>
