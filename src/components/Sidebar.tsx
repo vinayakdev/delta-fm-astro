@@ -33,22 +33,18 @@ interface SidebarProps {
 }
 
 export function Sidebar({ currentPath }: SidebarProps) {
-  const [isDark, setIsDark] = React.useState(true)
-  const [currency, setCurrency] = React.useState<Currency>("USD")
+  // Read directly from localStorage for initial state — avoids a useState(default) → useEffect update flash
+  const [isDark, setIsDark] = React.useState<boolean>(() => {
+    if (typeof window === "undefined") return true
+    const stored = localStorage.getItem("fm-theme")
+    return stored !== "light"
+  })
+  const [currency, setCurrency] = React.useState<Currency>(() => {
+    if (typeof window === "undefined") return "USD"
+    const stored = localStorage.getItem("fm-currency")
+    return stored === "INR" ? "INR" : "USD"
+  })
 
-  // Sync initial state from localStorage
-  React.useEffect(() => {
-    const storedTheme = localStorage.getItem("fm-theme")
-    const storedCurrency = localStorage.getItem("fm-currency") as Currency | null
-
-    const dark = storedTheme !== null ? storedTheme === "dark" : true
-    setIsDark(dark)
-    applyTheme(dark)
-
-    if (storedCurrency === "USD" || storedCurrency === "INR") {
-      setCurrency(storedCurrency)
-    }
-  }, [])
 
   function applyTheme(dark: boolean) {
     document.documentElement.classList.toggle("dark", dark)

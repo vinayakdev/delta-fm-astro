@@ -10,12 +10,20 @@ const { title = "Delta FM" } = Astro.props
 const currentPath = Astro.url.pathname
 ---
 
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title} — Delta FM</title>
+    <!-- Runs synchronously before first paint to prevent theme flash -->
+    <script is:inline>
+      const theme = localStorage.getItem("fm-theme");
+      // Default to dark if no preference stored
+      if (theme !== "light") {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
   </head>
   <body class="flex h-svh overflow-hidden bg-background text-foreground">
     <Sidebar currentPath={currentPath} client:load />
