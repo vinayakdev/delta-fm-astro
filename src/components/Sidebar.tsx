@@ -8,6 +8,7 @@ import {
   Exchange01Icon,
   Moon01Icon,
   Sun01Icon,
+  TradeUpIcon,
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { cn } from "@/lib/utils"
@@ -21,6 +22,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Dashboard", href: "/", icon: DashboardCircleIcon },
   { label: "Accounts", href: "/accounts", icon: Key01Icon },
+  { label: "Trade", href: "/trade", icon: TradeUpIcon },
   { label: "Positions", href: "/positions", icon: ChartCandleIcon },
   { label: "Orders", href: "/orders", icon: ListViewIcon },
   { label: "Wallet", href: "/wallet", icon: Wallet01Icon },

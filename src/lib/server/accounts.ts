@@ -1,21 +1,31 @@
 import { readFileSync, writeFileSync, existsSync } from "fs"
 import { randomUUID } from "crypto"
 import path from "path"
+import { DEFAULT_RISK_CONFIG } from "@/lib/risk"
+import type { RiskConfig } from "@/lib/risk"
 
 export interface Account {
   id: string
   name: string
   apiKey: string
   apiSecret: string
+  riskConfig: RiskConfig
   createdAt: string
 }
 
 const DATA_FILE = path.resolve(process.cwd(), "src/lib/data/accounts.json")
 
+function applyDefaults(raw: Partial<Account>): Account {
+  return {
+    ...raw,
+    riskConfig: raw.riskConfig ?? { ...DEFAULT_RISK_CONFIG },
+  } as Account
+}
+
 export function getAccounts(): Account[] {
   if (!existsSync(DATA_FILE)) return []
   try {
-    return JSON.parse(readFileSync(DATA_FILE, "utf-8")) as Account[]
+    return (JSON.parse(readFileSync(DATA_FILE, "utf-8")) as Partial<Account>[]).map(applyDefaults)
   } catch {
     return []
   }
@@ -36,6 +46,7 @@ export function createAccount(data: {
     name: data.name,
     apiKey: data.apiKey,
     apiSecret: data.apiSecret,
+    riskConfig: { ...DEFAULT_RISK_CONFIG },
     createdAt: new Date().toISOString(),
   }
   accounts.push(account)
@@ -45,7 +56,7 @@ export function createAccount(data: {
 
 export function updateAccount(
   id: string,
-  data: Partial<Pick<Account, "name" | "apiKey" | "apiSecret">>
+  data: Partial<Pick<Account, "name" | "apiKey" | "apiSecret" | "riskConfig">>
 ): Account | null {
   const accounts = getAccounts()
   const idx = accounts.findIndex((a) => a.id === id)

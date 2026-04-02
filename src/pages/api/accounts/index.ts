@@ -6,6 +6,7 @@ export const GET: APIRoute = () => {
     id: a.id,
     name: a.name,
     apiKey: a.apiKey,
+    riskConfig: a.riskConfig,
     // never send secret to client
     createdAt: a.createdAt,
   }))
@@ -30,6 +31,7 @@ export const POST: APIRoute = async ({ request }) => {
     id: account.id,
     name: account.name,
     apiKey: account.apiKey,
+    riskConfig: account.riskConfig,
     createdAt: account.createdAt,
   })
 }

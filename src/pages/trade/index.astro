@@ -1,0 +1,8 @@
+---
+import AdminLayout from "@/layouts/admin.astro"
+import { TradePanel } from "@/components/TradePanel"
+---
+
+<AdminLayout title="Trade">
+  <TradePanel client:only="react" />
+</AdminLayout>
