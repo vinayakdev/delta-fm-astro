@@ -28,19 +28,21 @@ const navItems: NavItem[] = [
 
 type Currency = "USD" | "INR"
 
-interface SidebarProps {
-  currentPath: string
-}
-
-export function Sidebar({ currentPath }: SidebarProps) {
-  // Read directly from localStorage for initial state — avoids a useState(default) → useEffect update flash
+export function Sidebar() {
   const [isDark, setIsDark] = React.useState<boolean>(
     () => localStorage.getItem("fm-theme") !== "light"
   )
   const [currency, setCurrency] = React.useState<Currency>(
     () => (localStorage.getItem("fm-currency") === "INR" ? "INR" : "USD")
   )
+  const [currentPath, setCurrentPath] = React.useState(() => window.location.pathname)
 
+  // Update active route after each View Transition navigation
+  React.useEffect(() => {
+    const onPageLoad = () => setCurrentPath(window.location.pathname)
+    document.addEventListener("astro:page-load", onPageLoad)
+    return () => document.removeEventListener("astro:page-load", onPageLoad)
+  }, [])
 
   function applyTheme(dark: boolean) {
     document.documentElement.classList.toggle("dark", dark)
